@@ -1,0 +1,16 @@
+//Comandos MongoDB
+//usar um terminal ou cmd dentro da pasta de instação
+
+mongo --inicia banco
+mongod -version -- ver versão, otimo para saber se a instalação funcionou
+show dbs --ver os bancos
+use --para usar o banco, como se fosse um esquema, se usar em um banco que não exista ele cria
+show collections -- ver as coleções(tabelas)
+db.createCollection('nome_tabela') -- cria um coleção
+db.nome_tabela.drop() --exclui a coleção
+cls --limpa da tela
+db.nome_tabela.insert ou save({coluna: "string", coluna: "string"}) --inserção na coleção
+db.nome_tabela.find() --mostrar dados de uma collections
+db.nome_tabela.find().pretty() --mostrar dados de uma collections no formado json
+db.help() --ajuda
+db.tecla tab --ajuda mais detalhada
