@@ -1,0 +1,65 @@
+--sql no mongoDB
+--insert
+db.estados.insert({
+    nome:"São Paulo",
+    sigla: "SP",
+    regiao: "Sudeste",
+    cidades:[{
+        _id: ObjectId(),
+        nome: "Campinas",
+        area: 795.7,
+        prefeito: "Jonas Donizete",
+        populacao: 10831656
+    },{
+        _id: ObjectId(),
+        nome: "Guarulho",
+        populacao: 1561815616
+    },{
+        _id: ObjectId(),
+        nome: "Sorocaba",
+        distanciaCapital: 87.6,
+        populacao: 15165165
+    }]
+})
+db.estados.insert({
+    nome:"Rio de Janeiro",
+    sigla: "RJ",
+    regiao: "Sudeste",
+    cidades:[{
+        _id: ObjectId(),
+        nome: "Santos",
+        area: 15616.7,
+        prefeito: "Marilia",
+        populacao: 51616516
+    }]
+})
+db.estados.save({nome: "Alagoas", sigla: "AL", regiao: "Nordeste", populacao: 1561566})
+--pesquisa no formato json
+db.estados.find().pretty()
+--pega apenas o primeiro
+db.estados.findOne()
+db.estados.findOne({sigla:"SP"}).pretty()
+--usando operador OU ou AND no find()
+db.estados.find({$or: [{sigla:"RJ"},{sigla: "SP"}]}).pretty()
+--pegando apenas atributos com informação
+db.estados.find({populacao: {$exists: true}}).pretty()
+--pesquisa com paginação
+db.estados.find().skip(1).limit(2).pretty()
+--contando na consulta
+db.estados.count()
+--consulta trazer apenas alguns atributos -- o 1 quer dizer que deve aparecer e 0 não p
+db.estados.find({sigla:"SP"},{nome:1, sigla:1, _id: 0})
+db.estados.find({sigla:"SP"},{"cidades.nome":1, _id: 0}).pretty()
+
+--consultas avançadas - pipeline stages
+--são consultar por estagio, um estagio criar um gama de dados, e assim vai reduzindo com os outros estagios
+db.estados.aggregate([
+    {$project: {nome:1, "cidades.nome":1, _id: 0}}
+])
+--se a atributo estive na direita tem usar o $
+--usando a soma na pesquisa, somando tudo.
+db.estados.aggregate([
+    {$project: {populacao: {$sum: "$cidades.populacao"}, sigla:1, _id:0}},
+    {$group: {_id: null, populcacaoTotal: {$sum: "$populacao"}}},
+    {$project: {_id: 0, populcacaoTotal: 1}}
+])
