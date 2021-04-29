@@ -1,7 +1,7 @@
 //Comandos MongoDB
 //usar um terminal ou cmd dentro da pasta de instação
 
-mongo --inicia banco
+mongo --inicia banco --para usar dentro do vb tem que ter antes do .\
 mongod -version -- ver versão, otimo para saber se a instalação funcionou
 show dbs --ver os bancos
 use --para usar o banco, como se fosse um esquema, se usar em um banco que não exista ele cria
@@ -14,3 +14,15 @@ db.nome_tabela.find() --mostrar dados de uma collections
 db.nome_tabela.find().pretty() --mostrar dados de uma collections no formado json
 db.help() --ajuda
 db.tecla tab --ajuda mais detalhada
+
+--consultas avançadas
+$unwind --ser para descompactador o pacote, server para separar as sub-collections
+$match -- são condicões de filtros
+$project -- faz a extração da consulta
+$set --setando uma informação
+$push --sera acrecentado algo
+$exists --verifica se algo existe na collections
+$lt -- Less Than - menor que algo
+$lookup --relação entre collections
+$cmp --comparar dois valores
+$addFields: --adicionar um campo na consulta

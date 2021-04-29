@@ -33,7 +33,19 @@ db.estados.insert({
         populacao: 51616516
     }]
 })
-db.estados.save({nome: "Alagoas", sigla: "AL", regiao: "Nordeste", populacao: 1561566})
+db.estados.save({
+    nome: "Alagoas", 
+    sigla: "AL", 
+    regiao: "Nordeste", 
+    populacao: 1561566
+})
+
+db.estados.save({
+    nome: "Acre", 
+    sigla: "AC", 
+    regiao: "Norte", 
+    populacao: 65995
+})
 --pesquisa no formato json
 db.estados.find().pretty()
 --pega apenas o primeiro
@@ -63,3 +75,92 @@ db.estados.aggregate([
     {$group: {_id: null, populcacaoTotal: {$sum: "$populacao"}}},
     {$project: {_id: 0, populcacaoTotal: 1}}
 ])
+
+--consulta separando o valores e pengando apenas o id de uma cidade de uma subcolletion
+db.estados.aggregate([
+    {$match: {"cidades.nome": "Sorocaba"}},
+    {$unwind: "$cidades"},
+    {$match: {"cidades.nome": "Sorocaba"}},
+    {$project: {_id: "$cidades._id"}}
+])
+
+--update
+db.estados.update(
+    {sigla:"SP"},
+    {$set: {
+        populacao:45340000
+    }}
+)
+
+db.estados.update(
+    {sigla:"AL"},
+    {$set: {
+        cidades: [
+            {
+                nome: "Sergipe"
+            }
+        ]
+    }}
+)
+
+db.estados.update(
+    {sigla:"SP"},
+    {$push: {
+        cidades: {
+            nome: "Santos",
+            populacao: 433966
+        }
+    }}
+)
+
+--removes
+db.estados.remove({
+    sigla: "AC"
+})
+
+--removendo com parametros exists e indicando quantos podem ser excluidos
+db.estados.remove(
+    {populacao: {$exists: false}},1
+)
+--removendo menor que
+db.estados.remove({
+    populacao: {$lt: 2000000}
+})
+
+--criando um collections de empresa associando a collection de estados
+db.empresas.insert({
+    nome: "Bradesco",
+    estadoId: ObjectId("6089f9cb9444f4a892f6012f")
+})
+
+db.empresas.insert({
+    nome: "Vale",
+    cidadeId: ObjectId("6089f9ba9444f4a892f6012c")
+})
+
+--lookup com estados
+db.empresas.aggregate([
+    {$match: {nome: "Bradesco"}},
+    {$lookup: {
+        from: "estados",
+        localField: "estadoId",
+        foreignField: "_id",
+        as: "estado"
+    }},
+    {$unwind: "$estado"}
+]).pretty()
+
+--lookup com cidades que estaõ dentro de estados
+db.empresas.aggregate([
+    {$match: {nome: "Vale"}},
+    {$lookup: {
+        from: "estados",
+        localField: "cidadeId",
+        foreignField: "cidades._id",
+        as: "estado"
+    }},
+    {$unwind: "$estado"},
+    {$unwind: "$estado.cidades"},
+    {$addFields: { mesmaCidade: {$cmp: ["$estado.cidades._id", "$cidadeId"]}}},
+    {$match: {mesmaCidade : 0}},
+]).pretty()
